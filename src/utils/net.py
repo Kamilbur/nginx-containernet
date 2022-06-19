@@ -9,7 +9,7 @@ from .logger import Logger
 
 
 @contextmanager
-def containernet(*args, **kwargs):
+def containernet_handler(*args, **kwargs):
     
     net = Containernet(*args, **kwargs)
 
