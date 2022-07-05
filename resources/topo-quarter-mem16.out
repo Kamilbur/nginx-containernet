@@ -1,0 +1,11 @@
+<Host nginx: nginx-eth0:10.0.0.251 pid=243270> 
+<Host wrk: wrk-eth0:10.0.0.252 pid=243362> 
+<OVSSwitch s1: lo:127.0.0.1,s1-eth1:None,s1-eth2:None pid=243426> 
+<OVSSwitch s2: lo:127.0.0.1,s2-eth1:None,s2-eth2:None pid=243429> 
+<OVSSwitch s3: lo:127.0.0.1 pid=243432> 
+<Controller c0: 127.0.0.1:6653 pid=243210> 
+
+============================================================
+wrk-eth0<->s1-eth1
+s1-eth2<->s2-eth1
+s2-eth2<->nginx-eth0

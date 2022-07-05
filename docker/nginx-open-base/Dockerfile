@@ -9,7 +9,4 @@ RUN apt-get update  && \
     rm -rf /var/lib/apt/lists/*
 
 
-COPY lb-config  /root/lb-config
-
-
 ENTRYPOINT /docker-entrypoint.sh /bin/sh -c /bin/bash

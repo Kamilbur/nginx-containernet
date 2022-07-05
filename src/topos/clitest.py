@@ -17,8 +17,17 @@ def topo(**kwargs):
     
         nginx = net.addDocker('nginx',
                             ip='10.0.0.251',
-                            dimage="nginxx:latest",
-                            ports=[80])
+                            dimage="nginx-open-lb:latest",
+                            ports=[80],
+                            environment={
+                                'SERVER1_IP': '10.0.0.10',
+                                'SERVER1_PORT': '5000',
+                                'SERVER2_IP': '10.0.0.11',
+                                'SERVER2_PORT': '5000',
+                                'LISTEN_PORT': '80',
+                            } 
+                            )
+
         wrk = net.addDocker('wrk',
                             ip='10.0.0.252',
                             dimage="wrk2:latest")
@@ -67,8 +76,8 @@ def topo(**kwargs):
         
     
         info('*** Setuping layer 4\n')
-    
-        nginx.cmd("nginx -c /root/lb-config/simple_lb.conf")
+
+        nginx.cmd("envsubst < /root/lb-config/simple_lb.conf > /root/lb-config/default.conf && nginx -c /root/lb-config/default.conf")
     
         for srv in servers.values():
             srv.cmd("bash -c 'python3 -m flask run --host=0.0.0.0 2> /dev/null > /dev/null &'")

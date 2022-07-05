@@ -1,5 +1,4 @@
 from mininet.node import Controller
-from mininet.cli import CLI
 from mininet.link import TCLink
 from mininet.log import info, setLogLevel
 
@@ -9,6 +8,7 @@ from utils.net import containernet_handler
 
 
 def topo(topofilename='topo.out', measfilename='meas.out', **kwargs):
+
     with containernet_handler(controller=Controller) as net:
 
         info('*** Adding controller\n')
@@ -17,44 +17,33 @@ def topo(topofilename='topo.out', measfilename='meas.out', **kwargs):
     
         info('*** Adding docker containers\n')
 
+
+        srv_limits = {
+            'cpu_quota':        -1,
+            'cpu_period':       None,
+            'cpu_shares':       None,
+            'mem_limit':        None,
+            'memswap_limit':    None,
+        }
+        srv_limits = kwargs.get('limits') or srv_limits
+        
+
+
         nginx = net.addDocker('nginx',
                             ip='10.0.0.251',
-                            dimage="nginx-open-lb:latest",
+                            dimage="nginx-open-srv:latest",
                             ports=[80],
                             environment={
-                                'SERVER1_IP': '10.0.0.10',
-                                'SERVER1_PORT': '5000',
-                                'SERVER2_IP': '10.0.0.11',
-                                'SERVER2_PORT': '5000',
+                                'SRV_PORT': '5000',
                                 'LISTEN_PORT': '80',
-                            } 
+                            },
+                            **srv_limits
                             )
 
         wrk = net.addDocker('wrk',
                             ip='10.0.0.252',
                             dimage="wrk2:latest")
            
-        servers_kwargs = {
-            'srv1': {
-                'ip': '10.0.0.10',
-                'dimage': 'flask:latest',
-                'ports': [5000],
-                'environment': {'SRVNAME': 'srv1'}
-                },
-            'srv2': {
-                'ip': '10.0.0.11',
-                'dimage': 'flask:latest',
-                'ports': [5000],
-                'environment': {'SRVNAME': 'srv2'}
-                },
-            }
-    
-        servers = {}
-    
-    
-        for key in servers_kwargs:
-            servers[key] = net.addDocker(key, **servers_kwargs[key])
-    
     
         info('*** Adding switches\n')
         
@@ -67,10 +56,6 @@ def topo(topofilename='topo.out', measfilename='meas.out', **kwargs):
         net.addLink(wrk, s1)
         net.addLink(s1, s2, cls=TCLink, delay='100ms', bw=1)
         net.addLink(s2, nginx)
-        net.addLink(s3, s2)
-    
-        for srv in servers.values():
-            net.addLink(s3, srv)
         
         info('*** Starting network\n')
         
@@ -78,18 +63,17 @@ def topo(topofilename='topo.out', measfilename='meas.out', **kwargs):
         
     
         info('*** Setuping layer 4\n')
-    
-        nginx.cmd("envsubst < /root/lb-config/simple_lb.conf > /root/lb-config/default.conf && nginx -c /root/lb-config/default.conf")
-    
-        for srv in servers.values():
-            srv.cmd("bash -c 'python3 -m flask run --host=0.0.0.0 2> /dev/null > /dev/null &'")
-    
+   
+        nginx.cmd("envsubst < /root/nginx-conf/open.conf > /root/nginx-conf/default.conf && nginx -c /root/nginx-conf/default.conf")
+        nginx.cmd("FLASK_APP=/root/matrix-srv/main.py flask run &")
     
         info('*** Running tests\n')
 
         commands = [
-            'wrk -t2 -c100 -d30s -R2000 --latency http://10.0.0.251:80',
+            'wrk -t2 -c100 -d30s -R2000 --latency http://10.0.0.251:80/mmul/10',
         ]
+        commands = kwargs.get('commands') or commands
+
 
         results = []
 
@@ -102,6 +86,9 @@ def topo(topofilename='topo.out', measfilename='meas.out', **kwargs):
 
         
         with open(measfilename, 'w+') as f:
+            f.write(str(srv_limits))
+            f.write('\n')
+            f.write('\n')
             for i in range(len(commands)):
                 f.write(commands[i])
                 f.write('\n')
