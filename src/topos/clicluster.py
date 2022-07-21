@@ -141,52 +141,6 @@ def topo(topofilename='topo.out', measfilename='meas.out', **kwargs):
             cont.cmd("/root/nginx-conf/plus.conf.d/configure.sh")
             cont.cmd("FLASK_APP=/root/matrix-srv/main.py flask run &")
             cont.cmd("keepalived")
-        
-#        nginx.cmd("envsubst < /root/nginx-conf/open.conf > /root/nginx-conf/default.conf && nginx -c /root/nginx-conf/default.conf")
-#        nginx.cmd("FLASK_APP=/root/matrix-srv/main.py flask run &")
-    
-        info('*** Running tests\n')
 
-        commands = [
-            'wrk -t2 -c100 -d30s -R2000 --latency http://10.0.0.25:80/mmul/10',
-        ]
-        commands = kwargs.get('commands') or commands
-
-
-        results = []
-
-        for comm in commands:
-            print(f'Running: {comm}')
-            results.append(wrk.cmd(comm))
-
-
-        info('*** Saving results\n')
-
-        
-        with open(measfilename, 'w+') as f:
-            f.write(str(srv_limits))
-            f.write('\n')
-            f.write('\n')
-            for i in range(len(commands)):
-                f.write(commands[i])
-                f.write('\n')
-                f.write('\n')
-                f.write(results[i])
-                f.write('\n')
-
-
-        with open(topofilename, 'w+') as f:
-            for _, item in net.items():
-                item_repr = repr(item)
-                item_repr = item_repr.replace('<Docker ', '<Host ')
-                f.write(item_repr)
-                f.write('\n')
-
-            f.write('\n')
-            f.write('===' * 20)
-            f.write('\n')
-            
-            for link in net.links:
-                f.write(str(link))
-                f.write('\n')
-
+        from mininet.cli import CLI
+        CLI(net)

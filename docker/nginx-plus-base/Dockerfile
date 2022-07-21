@@ -51,8 +51,10 @@ RUN --mount=type=secret,id=nginx-crt,mode=0777,dst=nginx-repo.crt \
         # nginx-plus-module-njs \
         nginx-plus-module-njs=${NGINX_VERSION}+${NJS_VERSION}-${PKG_RELEASE} \
         nginx-plus-module-prometheus \
+        nginx-ha-keepalived \
+        nginx-sync \
     " \
-    # Containernet dependencies
+# Containernet dependencies
     && containernetPackages=" \
         net-tools \
         iproute2 \
@@ -70,6 +72,7 @@ RUN --mount=type=secret,id=nginx-crt,mode=0777,dst=nginx-repo.crt \
     && apt-get install --no-install-recommends --no-install-suggests -y \
                         $nginxPackages \
                         curl \
+#                        keepalived \
                         gettext-base \
                         $containernetPackages \
     && apt-get remove --purge -y lsb-release \

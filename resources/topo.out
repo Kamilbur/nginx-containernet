@@ -1,11 +1,12 @@
-<Host nginx: nginx-eth0:10.0.0.251 pid=190219> 
-<Host wrk: wrk-eth0:10.0.0.252 pid=190313> 
-<OVSSwitch s1: lo:127.0.0.1,s1-eth1:None,s1-eth2:None pid=190376> 
-<OVSSwitch s2: lo:127.0.0.1,s2-eth1:None,s2-eth2:None pid=190379> 
-<OVSSwitch s3: lo:127.0.0.1 pid=190382> 
-<Controller c0: 127.0.0.1:6653 pid=190159> 
+<Host nginx1: nginx1-eth0:10.0.0.250 pid=873406> 
+<Host nginx2: nginx2-eth0:10.0.0.251 pid=873544> 
+<Host lb: lb-eth0:10.0.0.25 pid=873662> 
+<Host wrk: wrk-eth0:10.0.0.252 pid=873760> 
+<OVSSwitch s1: lo:127.0.0.1,s1-eth1:None,s1-eth2:None,s1-eth3:None,s1-eth4:None pid=873824> 
+<Controller c0: 127.0.0.1:6653 pid=873325> 
 
 ============================================================
 wrk-eth0<->s1-eth1
-s1-eth2<->s2-eth1
-s2-eth2<->nginx-eth0
+s1-eth2<->nginx1-eth0
+s1-eth3<->nginx2-eth0
+s1-eth4<->lb-eth0
