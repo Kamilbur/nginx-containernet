@@ -18,7 +18,8 @@ def cluster_meas():
         'wrk -t2 -c100 -d30s -R2000 --latency http://10.0.0.25:80/qr/15',
     ]
 
-    os.mkdir('results')
+    if not os.path.isdir('results'):
+        os.mkdir('results')
 
     # Cluster
 
