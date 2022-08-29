@@ -130,7 +130,7 @@ def webserver_test():
         'memswap_limit': None,
     }
 
-    single_webserver.topo(
+    topo(
         topofilename='results/topo-single.out',
         measfilename='results/meas-single1.out',
         commands=commands,
@@ -146,7 +146,7 @@ def webserver_test():
         'memswap_limit': None,
     }
 
-    single_webserver.topo(
+    topo(
         topofilename='results/topo-single.out',
         measfilename='results/meas-single2.out',
         commands=commands,
@@ -162,7 +162,7 @@ def webserver_test():
         'memswap_limit': None,
     }
 
-    single_webserver.topo(
+    topo(
         topofilename='results/topo-single.out',
         measfilename='results/meas-single3.out',
         commands=commands,
