@@ -3,7 +3,7 @@ from mininet.link import TCLink
 from mininet.log import info, setLogLevel
 
 from utils.net import containernet_handler
-
+import os
 
 
 
@@ -48,14 +48,11 @@ def topo(topofilename='topo.out', measfilename='meas.out', **kwargs):
         info('*** Adding switches\n')
         
         s1 = net.addSwitch('s1')
-        s2 = net.addSwitch('s2')
-        s3 = net.addSwitch('s3')
     
         info('*** Creating links\n')
         
         net.addLink(wrk, s1)
-        net.addLink(s1, s2, cls=TCLink, delay='100ms', bw=1)
-        net.addLink(s2, nginx)
+        net.addLink(s1, nginx)
         
         info('*** Starting network\n')
         
@@ -116,98 +113,58 @@ def topo(topofilename='topo.out', measfilename='meas.out', **kwargs):
 
 def webserver_test():
     commands = [
-        'wrk -t2 -c100 -d30s -R2000 --latency http://10.0.0.251:80/mmul/10',
-        'wrk -t2 -c100 -d30s -R2000 --latency http://10.0.0.251:80/mmul/20',
-        'wrk -t2 -c100 -d30s -R2000 --latency http://10.0.0.251:80/mmul/30',
-        'wrk -t2 -c100 -d30s -R2000 --latency http://10.0.0.251:80/lu/10',
-        'wrk -t2 -c100 -d30s -R2000 --latency http://10.0.0.251:80/lu/20',
-        'wrk -t2 -c100 -d30s -R2000 --latency http://10.0.0.251:80/lu/30',
-        'wrk -t2 -c100 -d30s -R2000 --latency http://10.0.0.251:80/qr/10',
-        'wrk -t2 -c100 -d30s -R2000 --latency http://10.0.0.251:80/qr/20',
-        'wrk -t2 -c100 -d30s -R2000 --latency http://10.0.0.251:80/qr/30',
+        'wrk -t1 -c1 -d30s -R100 --latency http://10.0.0.251:80/mmul/15',
+        'wrk -t1 -c1 -d30s -R100 --latency http://10.0.0.251:80/lu/15',
+        'wrk -t1 -c1 -d30s -R100 --latency http://10.0.0.251:80/qr/15',
     ]
+
+    if not os.path.isdir('results'):
+        os.mkdir('results')
 
     cpu_period = 100000
     limits = {
         'cpu_quotas': int( 1.0 * cpu_period ),
         'cpu_period': cpu_period,
         'cpu_shares': None,
-        'mem_limit': None,
+        'mem_limit': '1024m',
         'memswap_limit': None,
     }
 
-    # No limits
     single_webserver.topo(
-        topofilename='results/topo-full.out',
-        measfilename='results/meas-full.out',
+        topofilename='results/topo-single.out',
+        measfilename='results/meas-single1.out',
         commands=commands,
         limits=limits
     )
 
 
     limits = {
-        'cpu_quotas': int( 0.5 * cpu_period ),
+        'cpu_quotas': int( 2.0 * cpu_period ),
         'cpu_period': cpu_period,
         'cpu_shares': None,
-        'mem_limit': None,
+        'mem_limit': '1024m',
         'memswap_limit': None,
     }
 
-    # Half of cpu
     single_webserver.topo(
-        topofilename='results/topo-half.out',
-        measfilename='results/meas-half.out',
+        topofilename='results/topo-single.out',
+        measfilename='results/meas-single2.out',
         commands=commands,
         limits=limits
     )
 
 
     limits = {
-        'cpu_quotas': int( 0.25 * cpu_period ),
+        'cpu_quotas': int( 3.0 * cpu_period ),
         'cpu_period': cpu_period,
         'cpu_shares': None,
-        'mem_limit': None,
+        'mem_limit': '1024m',
         'memswap_limit': None,
     }
 
-    # Quater of cpu
     single_webserver.topo(
-        topofilename='results/topo-quarter.out',
-        measfilename='results/meas-quarter.out',
-        commands=commands,
-        limits=limits
-    )
-
-
-    limits = {
-        'cpu_quotas': int( 0.25 * cpu_period ),
-        'cpu_period': cpu_period,
-        'cpu_shares': None,
-        'mem_limit': '32m',
-        'memswap_limit': -1,
-    }
-
-    # Memory 12m
-    single_webserver.topo(
-        topofilename='results/topo-quarter-mem32.out',
-        measfilename='results/meas-quarter-mem32.out',
-        commands=commands,
-        limits=limits
-    )
-
-
-    limits = {
-        'cpu_quotas': int( 0.25 * cpu_period ),
-        'cpu_period': cpu_period,
-        'cpu_shares': None,
-        'mem_limit': '16m',
-        'memswap_limit': -1,
-    }
-
-    # Memory 6m
-    single_webserver.topo(
-        topofilename='results/topo-quarter-mem16.out',
-        measfilename='results/meas-quarter-mem16.out',
+        topofilename='results/topo-single.out',
+        measfilename='results/meas-single3.out',
         commands=commands,
         limits=limits
     )

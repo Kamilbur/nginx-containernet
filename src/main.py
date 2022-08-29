@@ -121,8 +121,8 @@ def cluster_meas():
 def main():
 #    test.topo()
 #    simple.topo()
-#    single_webserver.webserver_test()
-    cluster_meas()
+    single_webserver.webserver_test()
+#    cluster_meas()
 
 
 if __name__ == '__main__':
